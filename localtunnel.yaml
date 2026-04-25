@@ -1,0 +1,176 @@
+wantType:
+  metadata:
+    name: localtunnel
+    title: Localtunnel
+    description: |
+      Exposes a local port to the internet using localtunnel (lt).
+
+      Starts an `lt` process in the background, captures the public tunnel URL
+      from its output, and stores it in `tunnel_url` (also exposed as `final_result`).
+
+      Requirements:
+        - localtunnel must be installed: npm install -g localtunnel
+
+      To use a custom subdomain, override the `args` parameter:
+        args: '["--port", "3000", "--subdomain", "myapp"]'
+    version: "1.0"
+    category: tunnel
+    pattern: independent
+
+  finalResultField: tunnel_url
+
+  parameters:
+    - name: port
+      description: Local port to expose (used to build default args)
+      type: string
+      default: "8080"
+    - name: args
+      description: Full CLI arguments as JSON array (overrides port if set)
+      type: string
+      default: '["--port", "8080"]'
+    - name: url_regex
+      description: Regex to extract the tunnel URL from localtunnel output
+      type: string
+      default: 'your url is: (https?://\S+)'
+    - name: max_retries
+      description: Max retries waiting for the tunnel URL to appear in the log
+      type: int
+      default: 30
+    - name: log_file
+      description: Path to capture lt stdout (auto-generated if empty)
+      type: string
+      default: ""
+    - name: command
+      description: Path to lt binary
+      type: string
+      default: "lt"
+
+  requires:
+    - launch_management
+
+  onInitialize:
+    params:
+      process_command: command
+      process_args: args
+      process_log_file: log_file
+      url_regex: url_regex
+      max_retries: max_retries
+    current:
+      launch_type: "process"
+      result_field: tunnel_url
+    plan:
+      launch_plan: "start"
+    executeAgents: true
+
+  onDelete:
+    plan:
+      launch_plan: "stop"
+    executeAgents: true
+
+  state:
+    - name: launch_type
+      type: string
+      label: current
+      persistent: false
+      initialValue: 'process'
+
+    - name: launch_plan
+      type: string
+      label: plan
+      persistent: false
+      initialValue: ""
+
+    - name: status
+      type: string
+      label: current
+      persistent: true
+      initialValue: "pending"
+
+    - name: tunnel_url
+      description: Public tunnel URL captured from localtunnel output
+      type: string
+      label: current
+      persistent: true
+      initialValue: ""
+
+    - name: launch_error
+      type: string
+      label: current
+      persistent: true
+      initialValue: ""
+
+    - name: process_pid
+      type: int
+      label: current
+      persistent: true
+      initialValue: 0
+
+    - name: process_log_file
+      type: string
+      label: current
+      persistent: true
+      initialValue: ""
+
+    - name: process_command
+      type: string
+      label: current
+      persistent: false
+      initialValue: ""
+
+    - name: process_args
+      type: string
+      label: current
+      persistent: false
+      initialValue: ""
+
+    - name: url_regex
+      type: string
+      label: current
+      persistent: false
+      initialValue: ""
+
+    - name: result_field
+      type: string
+      label: current
+      persistent: false
+      initialValue: ""
+
+    - name: max_retries
+      type: int
+      label: current
+      persistent: false
+      initialValue: 0
+
+    - name: server_url
+      description: Alias for tunnel_url (launch_manager writes here via result_field)
+      type: string
+      label: current
+      persistent: true
+      initialValue: ""
+
+  examples:
+    - name: expose-local-server
+      description: Expose a local HTTP server on port 3000
+      want:
+        metadata:
+          name: my-tunnel
+          type: localtunnel
+        spec:
+          params:
+            args: '["--port", "3000"]'
+      expectedBehavior: |
+        Runs `lt --port 3000`, captures the public URL (e.g. https://xxx.loca.lt),
+        and stores it in tunnel_url. Deleting the want stops the lt process.
+
+    - name: expose-with-subdomain
+      description: Request a specific subdomain
+      want:
+        metadata:
+          name: myapp-tunnel
+          type: localtunnel
+        spec:
+          params:
+            args: '["--port", "8080", "--subdomain", "myapp"]'
+      expectedBehavior: |
+        Runs `lt --port 8080 --subdomain myapp`.
+        If available, the URL will be https://myapp.loca.lt.
