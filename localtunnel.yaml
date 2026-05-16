@@ -23,11 +23,11 @@ wantType:
     - name: port
       description: Local port to expose (used to build default args)
       type: string
-      default: "8080"
+      default: "8081"
     - name: args
       description: Full CLI arguments as JSON array (overrides port if set)
       type: string
-      default: '["--port", "8080"]'
+      default: '["--port", "8081"]'
     - name: url_regex
       description: Regex to extract the tunnel URL from localtunnel output
       type: string
@@ -170,7 +170,7 @@ wantType:
           type: localtunnel
         spec:
           params:
-            args: '["--port", "8080", "--subdomain", "myapp"]'
+            args: '["--port", "8081", "--subdomain", "myapp"]'
       expectedBehavior: |
-        Runs `lt --port 8080 --subdomain myapp`.
+        Runs `lt --port 8081 --subdomain myapp`.
         If available, the URL will be https://myapp.loca.lt.
