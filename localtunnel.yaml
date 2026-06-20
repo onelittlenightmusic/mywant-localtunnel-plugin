@@ -23,6 +23,7 @@ wantType:
     - name: port
       description: Local port to expose (used to build default args)
       type: string
+      subType: port
       default: "8081"
     - name: args
       description: Full CLI arguments as JSON array (overrides port if set)
