@@ -1,6 +1,8 @@
 wantType:
   metadata:
     name: localtunnel
+    labels:
+      aliases: "localtunnel,tunnel,トンネル"
     title: Localtunnel
     description: |
       Exposes a local port to the internet using localtunnel (lt).
