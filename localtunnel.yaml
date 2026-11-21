@@ -21,6 +21,14 @@ wantType:
 
   finalResultField: tunnel_url
 
+  # When it tells of its answer, besides the standard timing "answer": restarted: its process came up again.
+  timings:
+    - name: restarted
+      description: プロセスが起動し直したとき（落ちて復帰した）
+      onChange: process_pid
+      murmur: true
+      notify: true
+
   parameters:
     - name: port
       description: Local port to expose (used to build default args)
