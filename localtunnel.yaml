@@ -2,6 +2,9 @@ wantType:
   metadata:
     name: localtunnel
     labels:
+      # What the robot reads a request against, when it asks Laya which want
+      # it is: the type in a few words of its own (laya-option).
+      laya-option: "localtunnelでポートを公開する"
       aliases: "localtunnel,tunnel,トンネル"
     title: Localtunnel
     description: |
@@ -24,6 +27,8 @@ wantType:
   # When it tells of its answer, besides the standard timing "answer": restarted: its process came up again.
   timings:
     - name: restarted
+      irregular: true   # out of the ordinary: the robot looks at it
+      requires: [notify]   # what it needs done (met by a capability that attends to it)
       description: プロセスが起動し直したとき（落ちて復帰した）
       icon: rotate-ccw
       onChange: process_pid
@@ -186,3 +191,11 @@ wantType:
       expectedBehavior: |
         Runs `lt --port 8081 --subdomain myapp`.
         If available, the URL will be https://myapp.loca.lt.
+
+  # How a want of this type is asked for, in words, and what it is made with
+  # (want-spec asks): what reads requests (the robot, Laya) learns from these
+  # and is tested on them. A parameter left out is one the request does not say.
+  asks:
+    - say: "localtunnelで5173を公開"
+      variants: ["5173をlocaltunnelで外に公開", "localtunnelで5173番ポートを出して", "localtunnelのトンネルで5173"]
+      params: {"port": "5173"}
